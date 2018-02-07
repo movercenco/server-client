@@ -16,14 +16,14 @@ services:
       dockerfile: client.dockerfile
     working_dir: /var/www/client
     volumes:
-      - ./code/web:/var/www/client
+      - ./code/client:/var/www/client
     links:
       - app_api
   nginx:
     image: nginx:latest
     volumes:
-      - ./code/web:/var/www/web
       - ./code/api:/var/www/api
+      - ./code/client:/var/www/client
       - ./site.conf:/etc/nginx/conf.d/default.conf
     ports:
       - 8088:80
@@ -34,10 +34,21 @@ services:
   db:
     image: mysql:5.6
     environment:
-      - "MYSQL_DATABASE=homestead"
-      - "MYSQL_USER=homestead"
-      - "MYSQL_PASSWORD=secret"
-      - "MYSQL_ROOT_PASSWORD=secret"
+      - MYSQL_DATABASE=laravel
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=root
     ports:
       - "33366:3306"
-
+  phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      depends_on:
+        - db
+      links:
+        - db
+      ports:
+        - 8181:80
+      environment:
+        MYSQL_USERNAME: admin
+        MYSQL_ROOT_PASSWORD: root
+        PMA_HOST: db
